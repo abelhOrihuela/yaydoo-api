@@ -1,7 +1,7 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from './../prisma.service';
 import { Product, Prisma } from '@prisma/client';
-import Pagination from 'src/helpers/pagination';
+import Pagination from './../helpers/pagination';
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
@@ -53,26 +53,14 @@ export class ProductsService {
   }
 
   async create(data: Prisma.ProductCreateInput): Promise<Product | string> {
-    const verifyIfExists = await this.prisma.product.findFirst({
-      where: {
-        sku: data.sku,
-      },
+    return await this.prisma.product.create({ data });
+  }
+
+  async verifyIfExists(
+    where: Prisma.ProductWhereInput,
+  ): Promise<Product | null> {
+    return this.prisma.product.findFirst({
+      where,
     });
-
-    if (verifyIfExists) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'This sku was registered previously!',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    try {
-      return await this.prisma.product.create({ data });
-    } catch (e) {
-      throw e;
-    }
   }
 }
