@@ -16,5 +16,14 @@ model Product {
   name  String
   description  String
   price Int
+  checkouts Checkout[]
+
 }
 
+model Checkout {
+  id    Int     @default(autoincrement()) @id
+  idUsuario Int
+  idProducto Int
+  product    Product?    @relation(fields: [idProducto], references: [id])
+  quantity Int
+}
