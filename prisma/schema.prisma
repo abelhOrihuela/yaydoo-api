@@ -3,7 +3,7 @@
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db" //implementing
+  url      = "file:./dev.db"
 }
 
 generator client {
@@ -17,3 +17,4 @@ model Product {
   description  String
   price Int
 }
+
