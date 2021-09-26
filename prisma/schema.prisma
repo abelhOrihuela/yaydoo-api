@@ -8,8 +8,6 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
-  output   = "./generated/dbml"
-
 }
 
 model Product {
@@ -24,7 +22,6 @@ model Product {
 
 model Checkout {
   id    Int     @default(autoincrement()) @id
-  idUsuario Int
   idProducto Int
   product    Product?    @relation(fields: [idProducto], references: [id])
   quantity Int
@@ -32,7 +29,6 @@ model Checkout {
 
 model Order {
   id    Int     @default(autoincrement()) @id
-  idUsuario Int
   total Float
   itemsTotal Int
   status String

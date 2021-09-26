@@ -10,7 +10,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { Checkout } from '@prisma/client/';
+import { Checkout } from '@prisma/client';
 import { CheckoutsService } from './checkouts.service';
 
 @Controller('checkouts')
@@ -19,10 +19,7 @@ export class CheckoutsController {
 
   @Get()
   async getAll(): Promise<Checkout[]> {
-    const userId = 1;
-    return this.checkoutService.getAllByUser({
-      idUsuario: userId,
-    });
+    return this.checkoutService.getAllByUser({});
   }
 
   @Post()
@@ -31,7 +28,6 @@ export class CheckoutsController {
     @Body('quantity', ParseIntPipe) quantity: number,
   ): Promise<Checkout> {
     const verifyIfExists = await this.checkoutService.verifyIfExists({
-      idUsuario: 1,
       idProducto: idProducto,
     });
 
@@ -46,7 +42,6 @@ export class CheckoutsController {
       );
     } else {
       return this.checkoutService.create({
-        idUsuario: 1,
         product: {
           connect: { id: idProducto },
         },
@@ -61,7 +56,6 @@ export class CheckoutsController {
     @Body('quantity', ParseIntPipe) quantity: number,
   ): Promise<Checkout> {
     const verifyIfExists = await this.checkoutService.verifyIfExists({
-      idUsuario: 1,
       idProducto: idProducto,
     });
 
@@ -76,7 +70,6 @@ export class CheckoutsController {
       );
     } else {
       return this.checkoutService.create({
-        idUsuario: 1,
         product: {
           connect: { id: idProducto },
         },

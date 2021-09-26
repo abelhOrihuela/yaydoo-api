@@ -16,8 +16,7 @@ export class OrdersController {
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
         @Query('perPage', new DefaultValuePipe(10), ParseIntPipe) perPage?: number,
     ): Promise<Pagination> {
-        const userId = 1;
-        return this.ordersService.getAllByUser(1, page, perPage);
+        return this.ordersService.getAllByUser(page, perPage);
     }
 
     @Post()
@@ -27,7 +26,7 @@ export class OrdersController {
     ): Promise<Order> {
         const userId = 1;
 
-        const checkoutHasItems = await this.checkoutService.getAllByUser({ idUsuario: userId})
+        const checkoutHasItems = await this.checkoutService.getAllByUser({})
 
         if (checkoutHasItems.length === 0) {
             throw new HttpException(
@@ -41,7 +40,6 @@ export class OrdersController {
 
         
         return this.ordersService.create(
-            userId,
             addressDelivery,
             paymentMethod
         );

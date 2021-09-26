@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, Order } from './../../prisma/generated/dbml';
+import { Prisma, Order } from '@prisma/client';
 import { PrismaService } from './../prisma.service';
 import Pagination from './../helpers/pagination';
 
@@ -7,7 +7,7 @@ import Pagination from './../helpers/pagination';
 export class OrdersService {
     constructor(private prisma: PrismaService) { }
 
-    async getAllByUser(idUsuario, page, perPage): Promise<Pagination> {
+    async getAllByUser(page, perPage): Promise<Pagination> {
         const skip = page > 0 ? (page - 1) * perPage : 0;
 
         const pagination: Pagination = {
@@ -20,17 +20,10 @@ export class OrdersService {
                     },
                 },
                 skip,
-                take: perPage,
-                where: {
-                    idUsuario
-                },
+                take: perPage
             }),
             page: page,
-            total: await (await this.prisma.order.findMany({
-                where: {
-                    idUsuario
-                }
-            })).length,
+            total: await (await this.prisma.order.findMany()).length,
             perPage: perPage,
             nextPage: page + 1,
         };
@@ -38,18 +31,14 @@ export class OrdersService {
         return pagination;
     }
 
-    async create(idUsuario: number, addressDelivery: string, paymentMethod: string): Promise<Order> {
+    async create(addressDelivery: string, paymentMethod: string): Promise<Order> {
         const products = await this.prisma.checkout.findMany({
-            where: {
-                idUsuario
-            },
             include: {
                 product: true,
             }});
 
         const order = await this.prisma.order.create({
             data: {
-                idUsuario: 1,
                 total: products.map(l => l.product.price * l.quantity).reduce((prev, next) => prev + next, 0),
                 itemsTotal: products.length,
                 status: "created",
