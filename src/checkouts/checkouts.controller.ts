@@ -10,7 +10,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { Checkout } from '@prisma/client';
+import { Checkout } from '@prisma/client/';
 import { CheckoutsService } from './checkouts.service';
 
 @Controller('checkouts')

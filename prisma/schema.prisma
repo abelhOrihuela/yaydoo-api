@@ -3,11 +3,13 @@
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
+  url      = "file:./store_app_1.db"
 }
 
 generator client {
   provider = "prisma-client-js"
+  output   = "./generated/dbml"
+
 }
 
 model Product {
@@ -17,7 +19,7 @@ model Product {
   description  String
   price Int
   checkouts Checkout[]
-
+  orderItems OrderItem[]
 }
 
 model Checkout {
@@ -26,4 +28,25 @@ model Checkout {
   idProducto Int
   product    Product?    @relation(fields: [idProducto], references: [id])
   quantity Int
+}
+
+model Order {
+  id    Int     @default(autoincrement()) @id
+  idUsuario Int
+  total Float
+  itemsTotal Int
+  status String
+  addressDelivery String @default("")
+  paymentMethod String @default("cash")
+  items OrderItem[]
+}
+
+model OrderItem {
+  id    Int     @default(autoincrement()) @id
+  idOrder Int
+  order    Order?    @relation(fields: [idOrder], references: [id])
+  total Float
+  quantity Int
+  idProducto Int @default(1)
+  product    Product?    @relation(fields: [idProducto], references: [id])
 }

@@ -38,15 +38,15 @@ export class ProductsService {
     };
 
     const pagination: Pagination = {
-      page: page,
-      total: await (await this.prisma.product.findMany({ where })).length,
-      perPage: perPage,
-      nextPage: page + 1,
       data: await this.prisma.product.findMany({
         skip,
         take: perPage,
         where,
       }),
+      page: page,
+      total: await (await this.prisma.product.findMany({ where })).length,
+      perPage: perPage,
+      nextPage: page + 1,
     };
 
     return pagination;
