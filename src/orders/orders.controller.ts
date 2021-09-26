@@ -1,11 +1,15 @@
-import { Controller, Get, Post, Body, Query, ParseIntPipe, DefaultValuePipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, ParseIntPipe, DefaultValuePipe, HttpException, HttpStatus } from '@nestjs/common';
 import { Order } from '@prisma/client';
 import { OrdersService } from './orders.service';
+import { CheckoutsService } from '../checkouts/checkouts.service';
 import Pagination from './../../src/helpers/pagination';
 
 @Controller('orders')
 export class OrdersController {
-    constructor(private readonly ordersService: OrdersService) { }
+    constructor(
+        private readonly ordersService: OrdersService,
+        private readonly checkoutService: CheckoutsService,
+        ) { }
 
     @Get()
     async getAll(
@@ -22,6 +26,20 @@ export class OrdersController {
         @Body('paymentMethod') paymentMethod: string,
     ): Promise<Order> {
         const userId = 1;
+
+        const checkoutHasItems = await this.checkoutService.getAllByUser({ idUsuario: userId})
+
+        if (checkoutHasItems.length === 0) {
+            throw new HttpException(
+                {
+                    status: HttpStatus.UNPROCESSABLE_ENTITY,
+                    error: 'The checkout is empty!',
+                },
+                HttpStatus.UNPROCESSABLE_ENTITY,
+            );
+        }
+
+        
         return this.ordersService.create(
             userId,
             addressDelivery,

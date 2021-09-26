@@ -12,6 +12,13 @@ export class OrdersService {
 
         const pagination: Pagination = {
             data: await this.prisma.order.findMany({
+                include: {
+                    items: {
+                        include: {
+                            product: true
+                        }
+                    },
+                },
                 skip,
                 take: perPage,
                 where: {

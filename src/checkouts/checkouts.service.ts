@@ -7,7 +7,9 @@ export class CheckoutsService {
   constructor(private prisma: PrismaService) {}
 
   async getAllByUser(where: Prisma.CheckoutWhereInput): Promise<Checkout[]> {
-    return this.prisma.checkout.findMany({ where: where });
+    return this.prisma.checkout.findMany({ where: where, include: {
+      product: true
+    } });
   }
 
   async create(data: Prisma.CheckoutCreateInput): Promise<Checkout> {
