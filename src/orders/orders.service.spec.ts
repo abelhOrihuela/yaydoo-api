@@ -8,7 +8,8 @@ describe('OrdersService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [PrismaService, OrdersService],
-    }).compile();
+    })
+    .compile();
 
     service = module.get<OrdersService>(OrdersService);
   });
