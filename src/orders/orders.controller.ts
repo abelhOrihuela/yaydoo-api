@@ -30,7 +30,7 @@ export class OrdersController {
   @ApiOperation({ summary: 'Get orders' })
   @ApiResponse({ status: 200, description: 'Search succesfully' })
   async getAll(@Query() paginationDTO: PaginationDTO): Promise<Pagination> {
-    return this.ordersService.getAllByUser(paginationDTO);
+    return this.ordersService.getAll(paginationDTO);
   }
 
   @Post()
@@ -43,9 +43,9 @@ export class OrdersController {
   })
   @ApiResponse({ status: 200, description: 'Search succesfully!' })
   async create(@Body() orderDTO: OrderDTO): Promise<Order> {
-    const checkoutHasItems = await this.checkoutService.getAllByUser({});
+    const verifyIfExists = await this.ordersService.verifyIfExists();
 
-    if (checkoutHasItems.length === 0) {
+    if (!verifyIfExists) {
       throw new HttpException(
         {
           status: HttpStatus.UNPROCESSABLE_ENTITY,

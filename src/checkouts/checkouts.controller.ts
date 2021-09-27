@@ -7,8 +7,6 @@ import {
   ParseIntPipe,
   Put,
   Param,
-  HttpException,
-  HttpStatus,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -32,7 +30,7 @@ export class CheckoutsController {
   @ApiOperation({ summary: 'Get checkout' })
   @ApiResponse({ status: 200, description: 'Search succesfully' })
   async getAll(): Promise<Checkout[]> {
-    return this.checkoutService.getAllByUser({});
+    return this.checkoutService.getAll({});
   }
 
   @Post()
@@ -49,7 +47,6 @@ export class CheckoutsController {
   })
   @ApiProperty({ type: CheckoutDTO })
   async create(@Body() checkoutDTO: CheckoutDTO): Promise<Checkout> {
-    
     const verifyIfExists = await this.checkoutService.verifyIfExists(
       checkoutDTO.idProduct,
     );
@@ -65,10 +62,10 @@ export class CheckoutsController {
       return this.checkoutService.create({
         product: {
           connect: {
-            id: checkoutDTO.idProduct
-          }
+            id: checkoutDTO.idProduct,
+          },
         },
-        quantity: checkoutDTO.quantity
+        quantity: checkoutDTO.quantity,
       });
     }
   }
@@ -102,10 +99,10 @@ export class CheckoutsController {
       return this.checkoutService.create({
         product: {
           connect: {
-            id: checkoutDTO.idProduct
-          }
+            id: checkoutDTO.idProduct,
+          },
         },
-        quantity: checkoutDTO.quantity
+        quantity: checkoutDTO.quantity,
       });
     }
   }
@@ -117,21 +114,7 @@ export class CheckoutsController {
     status: 200,
     description: 'This item was deleted succesfully!',
   })
-  async deletePost(@Param('id', ParseIntPipe) id: number): Promise<Checkout> {
-    const verifyIfExists = await this.checkoutService.verifyIfExists({
-      id: id,
-    });
-
-    if (verifyIfExists) {
-      return this.checkoutService.delete({ id: Number(id) });
-    } else {
-      throw new HttpException(
-        {
-          status: HttpStatus.NOT_FOUND,
-          error: 'This resource not exist!',
-        },
-        HttpStatus.NOT_FOUND,
-      );
-    }
+  async delete(@Param('id', ParseIntPipe) id: number): Promise<Checkout> {
+    return this.checkoutService.delete({ id });
   }
 }

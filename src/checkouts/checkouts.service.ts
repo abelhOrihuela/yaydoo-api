@@ -6,7 +6,7 @@ import { Checkout, Prisma } from '@prisma/client';
 export class CheckoutsService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllByUser(where: Prisma.CheckoutWhereInput): Promise<Checkout[]> {
+  async getAll(where: Prisma.CheckoutWhereInput): Promise<Checkout[]> {
     return this.prisma.checkout.findMany({
       where: where,
       include: {
@@ -35,9 +35,7 @@ export class CheckoutsService {
     return this.prisma.checkout.delete({ where });
   }
 
-  async verifyIfExists(
-    id,
-  ): Promise<Checkout | null> {
+  async verifyIfExists(id: number): Promise<Checkout | null> {
     return this.prisma.checkout.findFirst({
       where: {
         idProducto: id,

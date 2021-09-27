@@ -2,12 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { Order } from '@prisma/client';
 import { PrismaService } from './../prisma.service';
 import Pagination from './../helpers/pagination';
+import { Checkout } from '@prisma/client';
 
 @Injectable()
 export class OrdersService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllByUser(query): Promise<Pagination> {
+  async getAll(query): Promise<Pagination> {
     const skip = query.page > 1 ? (query.page - 1) * query.perPage : 0;
 
     const pagination: Pagination = {
@@ -42,8 +43,8 @@ export class OrdersService {
       data: {
         total: products
           .map((l) => {
-            console.log(l.product.price * l.quantity)
-            return l.product.price * l.quantity
+            console.log(l.product.price * l.quantity);
+            return l.product.price * l.quantity;
           })
           .reduce((prev, next) => prev + next, 0),
         itemsTotal: products.length,
@@ -51,22 +52,21 @@ export class OrdersService {
         addressDelivery: data.addressDelivery,
         paymentMethod: data.paymentMethod,
         items: {
-          create: products.map(checkout => ({
+          create: products.map((checkout) => ({
             total: checkout.product.price * checkout.quantity,
             quantity: checkout.quantity,
-          }))
-        }
+          })),
+        },
       },
       include: {
         items: {
           include: {
-            product: true
-          }
-        }
-      }
+            product: true,
+          },
+        },
+      },
     });
 
-  
     const deleteManyPosts = products.map((checkout) => {
       return this.prisma.checkout.delete({
         where: {
@@ -77,6 +77,10 @@ export class OrdersService {
 
     Promise.all(deleteManyPosts);
 
-    return order
+    return order;
+  }
+
+  async verifyIfExists(): Promise<Checkout[]> {
+    return this.prisma.checkout.findMany({});
   }
 }
