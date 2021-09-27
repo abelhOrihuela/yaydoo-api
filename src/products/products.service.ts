@@ -5,33 +5,28 @@ import Pagination from './../helpers/pagination';
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
-  async getAll(
-    search: string,
-    page: number,
-    perPage: number,
-    min: number,
-    max: number,
-  ): Promise<Pagination> {
-    const skip = page > 0 ? (page - 1) * perPage : 0;
+  async getAll(query): Promise<Pagination> {
+    const skip = query.page > 1 ? (query.page - 1) * query.perPage : 0;
+
     const where = {
-      ...(min && max
+      ...(query.min != 0 && query.max != 0
         ? {
             AND: [
               {
                 price: {
-                  lte: max,
-                  gte: min,
+                  lte: query.max,
+                  gte: query.min,
                 },
               },
             ],
           }
         : {}),
-      ...(search
+      ...(query.search
         ? {
             OR: [
-              { name: { contains: search } },
-              { description: { contains: search } },
-              { sku: { contains: search } },
+              { name: { contains: query.search } },
+              { description: { contains: query.search } },
+              { sku: { contains: query.search } },
             ],
           }
         : {}),
@@ -40,13 +35,13 @@ export class ProductsService {
     const pagination: Pagination = {
       data: await this.prisma.product.findMany({
         skip,
-        take: perPage,
+        take: query.perPage,
         where,
       }),
-      page: page,
+      page: query.page,
       total: await (await this.prisma.product.findMany({ where })).length,
-      perPage: perPage,
-      nextPage: page + 1,
+      perPage: query.perPage,
+      nextPage: query.page + 1,
     };
 
     return pagination;
@@ -60,7 +55,9 @@ export class ProductsService {
     where: Prisma.ProductWhereInput,
   ): Promise<Product | null> {
     return this.prisma.product.findFirst({
-      where,
+      where: {
+        sku: where.sku,
+      },
     });
   }
 }

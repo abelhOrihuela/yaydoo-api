@@ -7,9 +7,12 @@ export class CheckoutsService {
   constructor(private prisma: PrismaService) {}
 
   async getAllByUser(where: Prisma.CheckoutWhereInput): Promise<Checkout[]> {
-    return this.prisma.checkout.findMany({ where: where, include: {
-      product: true
-    } });
+    return this.prisma.checkout.findMany({
+      where: where,
+      include: {
+        product: true,
+      },
+    });
   }
 
   async create(data: Prisma.CheckoutCreateInput): Promise<Checkout> {
@@ -20,7 +23,12 @@ export class CheckoutsService {
     where: Prisma.CheckoutWhereUniqueInput,
     data: Prisma.CheckoutUpdateInput,
   ): Promise<Checkout> {
-    return this.prisma.checkout.update({ where: { id: where.id }, data });
+    return this.prisma.checkout.update({
+      where: { id: where.id },
+      data: {
+        quantity: data.quantity,
+      },
+    });
   }
 
   async delete(where: Prisma.CheckoutWhereUniqueInput): Promise<Checkout> {
@@ -28,10 +36,12 @@ export class CheckoutsService {
   }
 
   async verifyIfExists(
-    where: Prisma.CheckoutWhereInput,
+    id,
   ): Promise<Checkout | null> {
     return this.prisma.checkout.findFirst({
-      where,
+      where: {
+        idProducto: id,
+      },
     });
   }
 }

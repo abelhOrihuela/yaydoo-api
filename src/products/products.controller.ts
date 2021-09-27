@@ -4,41 +4,48 @@ import {
   Get,
   Post,
   Query,
-  ParseIntPipe,
-  DefaultValuePipe,
   HttpException,
   HttpStatus,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 
 import { ProductsService } from './products.service';
-//import { Product } from '@prisma/client';
 import Pagination from './../../src/helpers/pagination';
+import { ProductDTO } from './../dto/product';
+import { PaginationDTO } from './../dto/pagination';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiProperty,
+} from '@nestjs/swagger';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productService: ProductsService) {}
 
   @Get()
-  async getAll(
-    @Query('search') search?: string,
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page?: number,
-    @Query('perPage', new DefaultValuePipe(10), ParseIntPipe) perPage?: number,
-    @Query('min', new DefaultValuePipe(0), ParseIntPipe) min?: number,
-    @Query('max', new DefaultValuePipe(0), ParseIntPipe) max?: number,
-  ): Promise<Pagination> {
-    return this.productService.getAll(search, page, perPage, min, max);
+  @UsePipes(new ValidationPipe({ transform: true }))
+  @ApiTags('products')
+  @ApiOperation({ summary: 'Get products' })
+  @ApiResponse({ status: 200, description: 'Search succesfully' })
+  async getAll(@Query() paginationDTO: PaginationDTO): Promise<Pagination> {
+    return this.productService.getAll(paginationDTO);
   }
 
   @Post()
-  async create(
-    @Body('name') name: string,
-    @Body('sku') sku: string,
-    @Body('description') description: string,
-    @Body('price') price: number,
-  ) {
-    const verifyIfExists = await this.productService.verifyIfExists({
-      sku,
-    });
+  @UsePipes(new ValidationPipe({ transform: true }))
+  @ApiTags('products')
+  @ApiOperation({ summary: 'Create product' })
+  @ApiResponse({
+    status: 400,
+    description: 'This sku was registered previously!',
+  })
+  @ApiResponse({ status: 200, description: 'Search succesfully!' })
+  @ApiProperty({ type: ProductDTO })
+  async create(@Body() productDTO: ProductDTO) {
+    const verifyIfExists = await this.productService.verifyIfExists(productDTO);
 
     if (verifyIfExists) {
       throw new HttpException(
@@ -50,11 +57,6 @@ export class ProductsController {
       );
     }
 
-    return this.productService.create({
-      name,
-      sku,
-      description,
-      price,
-    });
+    return this.productService.create(productDTO);
   }
 }
